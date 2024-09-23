@@ -15,7 +15,7 @@ conexion = psycopg2.connect(
     password="postgres",
     port="5432"  # Puerto predeterminado de PostgreSQL
 )
-
+total=0;
 # Función para obtener los estados
 def obtener_estados():
     url_estados = "https://gaia.inegi.org.mx/wscatgeo/v2/mgee/"  # URL de ejemplo del servicio de estados
@@ -60,6 +60,8 @@ print ("**************************************")
 
 # Obtener los estados desde el primer servicio
 estados = obtener_estados()
+contador=0;
+total=0;
 
 # Recorrer los estados y hacer inserciones
 for estado in estados:
@@ -72,6 +74,8 @@ for estado in estados:
 
     #print(nomgeo, end=" ")
     print (id_estado+'. '+nomgeo)
+ 
+    
 
     #print('id_estado=',id_estado)
     #print('nomgeo=',nomgeo)
@@ -98,8 +102,16 @@ for estado in estados:
             latitud = localidad['latitud']
             longitud = localidad['longitud']
             altitud = localidad['altitud']
+            #pob_total = localidad['pob_total']
+            #total_viviendas_habitadas = localidad['total_viviendas_habitadas']
+            #cve_carta = localidad['cve_carta']
+            #if cve_carta is None or cve_carta == "":
+            #    cve_carta = 'Empty'
+            #estatus = localidad['estatus']
+            #periodo = localidad['periodo']
+            total=+1
             #print (localidad)
-            cursor.execute('INSERT INTO public.localidades_p(cvegeo, cve_ent, cve_mun, cve_loc,nomgeo,ambito,latitud,longitud,altitud) '
+            cursor.execute('INSERT INTO public.localidades(cvegeo, cve_ent, cve_mun, cve_loc,nomgeo,ambito,latitud,longitud,altitud) '
                         +'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) '
                        +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, cve_loc, nomgeo, ambito, latitud,longitud, altitud));
 
@@ -119,3 +131,4 @@ print ("**************************************")
 print("Fecha y hora fin: ",  datetime.now())
 print ("**************************************")
 print("Localidades insertadas correctamente.")
+print("Total localidades=",total)

@@ -60,7 +60,7 @@ for estado in estados:
     municipios = obtener_municipios(id_estado)
     
     for municipio in municipios:
-        print (municipio)
+        #print (municipio)
 
         cvegeo = municipio['cvegeo']
         cve_ent = municipio['cve_ent']
@@ -68,18 +68,21 @@ for estado in estados:
         nomgeo = municipio['nomgeo']
         cvegeo = municipio['cvegeo']
         cve_cab = municipio['cve_cab']
-      #  pob_total = municipio['pob_total']
-      #  pob_femenina = municipio['pob_femenina']
-      #  pob_masculina = municipio['pob_masculina']
-      #  total_viviendas_habitadas = municipio['total_viviendas_habitadas']
-
+        #pob_total = municipio['pob_total']
+        #pob_femenina = municipio['pob_femenina']
+        pob_total='0'
+        pob_femenina='0'
+        #pob_masculina = municipio['pob_masculina']
+        pob_masculina = '0'
+        #total_viviendas_habitadas = municipio['total_viviendas_habitadas']
+        total_viviendas_habitadas = '0'
         # Insertar el municipio en la tabla 'municipios' con el id del estado correspondiente
         #cursor.execute('INSERT INTO estados (nombre) VALUES (%s) RETURNING id', (nombre_estado,))
   
        # cursor.execute('INSERT INTO public.mgem_p(cvegeo, cve_ent, cve_mun, nomgeo, cve_cab, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) '
        #                +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, nomgeo, cve_cab, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas));
-        cursor.execute('INSERT INTO public.mgem_p(cvegeo, cve_ent, cve_mun, nomgeo) VALUES (%s, %s, %s, %s) '
-                       +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, nomgeo));
+        cursor.execute('INSERT INTO public.mgem(cvegeo, cve_ent, cve_mun, nomgeo,cve_cab, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas) VALUES (%s, %s, %s, %s, %s, %s, %s, %s,%s) '
+                       +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, nomgeo,cve_cab, pob_total,pob_femenina, pob_masculina, total_viviendas_habitadas));
 
 # Confirmar las inserciones en la base de datos
 conexion.commit()
