@@ -21,7 +21,7 @@ cursor = conexion.cursor()
 
 # Crear la tabla (si no existe)
 crear_tabla_sql = '''
-CREATE TABLE IF NOT EXISTS public.mgee2_p
+CREATE TABLE IF NOT EXISTS public.mgee
 (
     cvegeo character varying(2) COLLATE pg_catalog."default" NOT NULL,
     cve_ent character varying(2) COLLATE pg_catalog."default" NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.mgee2_p
     pob_femenina integer NOT NULL,
     pob_masculina integer NOT NULL,
     total_viviendas_habitadas integer NOT NULL,
-    CONSTRAINT mgee2_p_pkey PRIMARY KEY (cvegeo)
+    CONSTRAINT mgee_pkey PRIMARY KEY (cvegeo)
 )
 '''
 
@@ -70,7 +70,7 @@ if respuesta.status_code == 200:
         
         # Insertar los datos en la tabla 'usuarios'
         insertar_sql = '''
-        INSERT INTO public.mgee2_p(cvegeo, cve_ent, nomgeo, nom_abrev, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas)
+        INSERT INTO public.mgee(cvegeo, cve_ent, nomgeo, nom_abrev, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas)
 	    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
         '''
         

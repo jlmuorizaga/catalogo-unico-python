@@ -1,6 +1,7 @@
 import os
 import requests
 import psycopg2
+from datetime import datetime
 
 # Función para limpiar la pantalla
 def limpiar_pantalla():
@@ -14,7 +15,7 @@ conexion = psycopg2.connect(
     password="postgres",
     port="5432"  # Puerto predeterminado de PostgreSQL
 )
-
+total=0;
 # Función para obtener los estados
 def obtener_estados():
     url_estados = "https://gaia.inegi.org.mx/wscatgeo/v2/mgee/"  # URL de ejemplo del servicio de estados
@@ -37,12 +38,30 @@ def obtener_municipios(id_estado):
     else:
         print(f"Error al obtener municipios para el estado {id_estado}: {respuesta.status_code}")
         return []
+    
+# Función para obtener los asentamientos de un municipio
+def obtener_asentamientos(id_estado,id_municipio):
+    url_asentamientos="https://gaia.inegi.org.mx/wscatgeo/v2/asentamientos/"+id_estado+"/"+id_municipio
+    #url_municipios = f"https://api.example.com/estados/{id_estado}/municipios"  # URL de ejemplo del servicio de municipios
+    respuesta = requests.get(url_asentamientos)
+    
+    if respuesta.status_code == 200:
+        return respuesta.json().get('datos', [])  # Suponemos que devuelve una lista de localidades
+    else:
+        print(f"Error al obtener asentamientos para el municipio {id_estado} {id_municipio}: {respuesta.status_code}")
+        return []
+
 
 limpiar_pantalla()
 cursor = conexion.cursor()
+print ("**************************************")
+print("Fecha y hora inicio:", datetime.now())
+print ("**************************************")
 
 # Obtener los estados desde el primer servicio
 estados = obtener_estados()
+contador=0;
+total=0;
 
 # Recorrer los estados y hacer inserciones
 for estado in estados:
@@ -53,6 +72,11 @@ for estado in estados:
     id_estado = estado['cvegeo']  # Obtener el id del estado insertado
     nomgeo = estado['nomgeo']
 
+    #print(nomgeo, end=" ")
+    print (id_estado+'. '+nomgeo)
+ 
+    
+
     #print('id_estado=',id_estado)
     #print('nomgeo=',nomgeo)
     
@@ -60,28 +84,27 @@ for estado in estados:
     municipios = obtener_municipios(id_estado)
     
     for municipio in municipios:
-        #print (municipio)
-
         cvegeo = municipio['cvegeo']
         cve_ent = municipio['cve_ent']
         cve_mun = municipio['cve_mun']
-        nomgeo = municipio['nomgeo']
-        cve_cab = municipio['cve_cab']
-        #pob_total = municipio['pob_total']
-        #pob_femenina = municipio['pob_femenina']
-        pob_total='0'
-        pob_femenina='0'
-        #pob_masculina = municipio['pob_masculina']
-        pob_masculina = '0'
-        #total_viviendas_habitadas = municipio['total_viviendas_habitadas']
-        total_viviendas_habitadas = '0'
-        # Insertar el municipio en la tabla 'municipios' con el id del estado correspondiente
-        #cursor.execute('INSERT INTO estados (nombre) VALUES (%s) RETURNING id', (nombre_estado,))
-  
-       # cursor.execute('INSERT INTO public.mgem_p(cvegeo, cve_ent, cve_mun, nomgeo, cve_cab, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) '
-       #                +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, nomgeo, cve_cab, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas));
-        cursor.execute('INSERT INTO public.mgem(cvegeo, cve_ent, cve_mun, nomgeo,cve_cab, pob_total, pob_femenina, pob_masculina, total_viviendas_habitadas) VALUES (%s, %s, %s, %s, %s, %s, %s, %s,%s) '
-                       +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, nomgeo,cve_cab, pob_total,pob_femenina, pob_masculina, total_viviendas_habitadas));
+        #print (municipio)
+
+
+
+        asentamientos=obtener_asentamientos(cve_ent,cve_mun)
+        for asentamiento in asentamientos:
+            cvegeo = asentamiento['cvegeo']
+            cve_ent = asentamiento['cve_ent']
+            cve_mun = asentamiento['cve_mun']
+            cve_loc = asentamiento['cve_loc']
+            cve_asen = asentamiento['cve_asen']
+            nom_asen = asentamiento['nom_asen']
+            tipo_asen = asentamiento['tipo_asen']
+            periodo = asentamiento['periodo']
+            cursor.execute('INSERT INTO public.asentamientos(cvegeo, cve_ent, cve_mun, cve_loc, cve_asen, nom_asen, tipo_asen, periodo) VALUES (%s,%s,%s,%s,%s,%s,%s,%s) '
+                       +'RETURNING cvegeo',(cvegeo, cve_ent, cve_mun, cve_loc, cve_asen, nom_asen, tipo_asen,periodo));
+            
+
 
 # Confirmar las inserciones en la base de datos
 conexion.commit()
@@ -89,5 +112,7 @@ conexion.commit()
 # Cerrar la conexión
 cursor.close()
 conexion.close()
-
-print("Municipios insertados correctamente.")
+print ("**************************************")
+print("Fecha y hora fin: ",  datetime.now())
+print ("**************************************")
+print("Asentamientos insertados correctamente.")
